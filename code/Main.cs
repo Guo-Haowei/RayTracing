@@ -1,4 +1,7 @@
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace RayTracingInOneWeekend
 {
@@ -6,25 +9,36 @@ namespace RayTracingInOneWeekend
     {
         static void Main()
         {
-            const int image_width = 256;
-            const int image_height = 256;
+            const int imageWidth = 256;
+            const int imageHeight = 256;
+            const int component = 3;
+            const int stride = component * imageWidth;
 
-            Console.WriteLine("P3\n{0} {1}\n255", image_width, image_height);
+            byte[] imageBuffer = new byte[stride * imageHeight];
 
-            for (int j = image_height - 1; j >= 0; --j)
+            // Console.WriteLine("P3\n{0} {1}\n255", imageWidth, imageHeight);
+
+            int index = 0;
+            for (int j = imageHeight - 1; j >= 0; --j)
             {
-                for (int i = 0; i < image_width; ++i)
+                for (int i = 0; i < imageWidth; ++i)
                 {
-                    float r = (float)i / (image_width - 1);
-                    float g = (float)j / (image_height - 1);
+                    float r = (float)i / (imageWidth - 1);
+                    float g = (float)j / (imageHeight - 1);
                     float b = 0.25f;
-                    int ir = (int)(255.999f * r);
-                    int ig = (int)(255.999f * g);
-                    int ib = (int)(255.999f * b);
+                    byte br = (byte)(255.999f * r);
+                    byte bg = (byte)(255.999f * g);
+                    byte bb = (byte)(255.999f * b);
 
-                    Console.WriteLine("{0} {1} {2}", ir, ig, ib);
+                    imageBuffer[index++] = bb;
+                    imageBuffer[index++] = bg;
+                    imageBuffer[index++] = br;
                 }
             }
+
+            Bitmap bitmap = new Bitmap(imageWidth, imageHeight, stride, PixelFormat.Format24bppRgb, Marshal.UnsafeAddrOfPinnedArrayElement(imageBuffer, 0));
+            bitmap.Save("./my.png", ImageFormat.Png);
+            bitmap.Dispose();
         }
     }
 }
