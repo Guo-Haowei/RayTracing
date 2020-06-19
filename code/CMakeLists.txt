@@ -6,6 +6,7 @@ ADD_EXECUTABLE(RayTracingInOneWeekend
     Material.cs
     Ray.cs
     Sphere.cs
+    Texture.cs
     Utility.cs
 )
 

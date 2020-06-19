@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 
 namespace RayTracingInOneWeekend {
@@ -33,6 +32,15 @@ namespace RayTracingInOneWeekend {
             }
 
             return false;
+        }
+
+        public static Vector2 getUv(in Vector3 point)
+        {
+            float phi = Utility.Atan2F(point.Z, point.X);
+            float theta = Utility.AsinF(point.Y);
+            float u = 1.0f - (phi + Utility.Pi) / Utility.TwoPi;
+            float v = (theta + Utility.HalfPi) / Utility.Pi;
+            return new Vector2(u, v);
         }
 
         public Sphere(in Vector3 center, float radius, Material material)

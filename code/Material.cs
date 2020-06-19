@@ -10,7 +10,7 @@ public abstract class Material
 
 public class Lambertian : Material
 {
-    public Lambertian(in Vector3 albedo)
+    public Lambertian(in Texture albedo)
     {
         this.albedo = albedo;
     }
@@ -19,11 +19,11 @@ public class Lambertian : Material
     {
         scattered.origin = record.point;
         scattered.direction = record.normal + Utility.RandomUnitVector();
-        attenuation = albedo;
+        attenuation = albedo.value(record.u, record.v, record.point);
         return true;
     }
 
-    private readonly Vector3 albedo;
+    private readonly Texture albedo;
 }
 
 public class Metal : Material

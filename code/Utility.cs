@@ -6,7 +6,8 @@ namespace RayTracingInOneWeekend {
     public class Utility
     {
         public static readonly float Pi = (float)Math.PI;
-        public static readonly float TwoPi = 2.0f * Pi;
+        public static readonly float HalfPi = (float)(0.5 * Math.PI);
+        public static readonly float TwoPi = (float)(2.0f * Math.PI);
 
         // Returns a random float in [0 1)
         public static float RandomF()
@@ -29,9 +30,18 @@ namespace RayTracingInOneWeekend {
             return (float)Math.Tan(a);
         }
 
+        public static float Atan2F(float y, float x)
+        {
+            return (float)Math.Atan2(y, x);
+        }
+
         public static float SinF(float a)
         {
             return (float)Math.Sin(a);
+        }
+        public static float AsinF(float d)
+        {
+            return (float)Math.Asin(d);
         }
 
         public static float CosF(float a)

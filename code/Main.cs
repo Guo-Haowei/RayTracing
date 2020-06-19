@@ -40,7 +40,8 @@ namespace RayTracingInOneWeekend
         {
             HittableList world = new HittableList();
 
-            var groundMaterial = new Lambertian(new Vector3(0.5f, 0.5f, 0.5f));
+            var groundMaterial = new Lambertian(new CheckerTexture(new SolidColor(0.2f, 0.3f, 0.1f), new SolidColor(0.9f)));
+            // var groundMaterial = new Lambertian(new SolidColor(0.5f, 0.5f, 0.5f));
             world.add(new Sphere(new Vector3(0.0f, -1000.0f, 0.0f), 1000.0f, groundMaterial));
 
             for (int a = -11; a < 11; ++a)
@@ -57,7 +58,7 @@ namespace RayTracingInOneWeekend
 
                     if (whichMat < 0.8f)
                     {
-                        mat = new Lambertian(Utility.RandomColor() * Utility.RandomColor());
+                        mat = new Lambertian(new SolidColor(Utility.RandomColor() * Utility.RandomColor()));
                         Vector3 center1 = center + new Vector3(0.0f, Utility.RandomF(0.0f, 0.5f), 0.0f);
                         world.add(new MovingSphere(center, center1, 0.0f, 1.0f, 0.2f, mat));
                         continue;
@@ -74,7 +75,7 @@ namespace RayTracingInOneWeekend
             var material1 = new Dielectric(1.5f);
             world.add(new Sphere(new Vector3(0.0f, 1.0f, 0.0f), 1.0f, material1));
 
-            var material2 = new Lambertian(new Vector3(0.4f, 0.2f, 0.1f));
+            var material2 = new Lambertian(new SolidColor(0.4f, 0.2f, 0.1f));
             world.add(new Sphere(new Vector3(-4.0f, 1.0f, 0.0f), 1.0f, material2));
 
             var material3 = new Metal(new Vector3(0.7f, 0.6f, 0.5f), 0.0f);
@@ -89,6 +90,7 @@ namespace RayTracingInOneWeekend
             const int imageWidth = 384;
             const int imageHeight = (int)(imageWidth / aspectRatio);
             const int samplesPerPixel = 100;
+            // const int maxDepth = 20;
             const int maxDepth = 50;
 
             const int component = 3;
