@@ -18,6 +18,7 @@ namespace RayTracingInOneWeekend
             if (world.hit(ray, 0.001f, float.PositiveInfinity, ref hitRecord))
             {
                 Ray scattered = new Ray();
+                scattered.time = 0.0f;
                 Vector3 attenuation = new Vector3();
                 if (hitRecord.material.scatter(ray, hitRecord, ref attenuation, ref scattered))
                 {
@@ -55,7 +56,12 @@ namespace RayTracingInOneWeekend
                         continue;
 
                     if (whichMat < 0.8f)
+                    {
                         mat = new Lambertian(Utility.RandomColor() * Utility.RandomColor());
+                        Vector3 center1 = center + new Vector3(0.0f, Utility.RandomF(0.0f, 0.5f), 0.0f);
+                        world.add(new MovingSphere(center, center1, 0.0f, 1.0f, 0.2f, mat));
+                        continue;
+                    }
                     else if (whichMat < 0.95f)
                         mat = new Metal(Utility.RandomColor(0.5f, 1.0f), Utility.RandomF(0.0f, 0.5f));
                     else
@@ -111,7 +117,9 @@ namespace RayTracingInOneWeekend
                 20.0f,
                 aspectRatio,
                 aperture,
-                focusDistance);
+                focusDistance,
+                0.0f,
+                1.0f);
 
             DateTime start = DateTime.Now;
             Console.WriteLine("Start at: {0}", start.ToString("F"));

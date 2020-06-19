@@ -39,6 +39,7 @@ public class Metal : Material
         Vector3 reflected = Vector3.Reflect(Vector3.Normalize(ray.direction), record.normal);
         scattered.origin = record.point;
         scattered.direction = reflected + fuzziness * Utility.RandomUnitVector();
+        scattered.time = ray.time;
         attenuation = albedo;
         return Vector3.Dot(scattered.direction, record.normal) > 0.0f;
     }
