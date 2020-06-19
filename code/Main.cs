@@ -35,6 +35,48 @@ namespace RayTracingInOneWeekend
             return (1.0f - t) * white + t * blue;
         }
 
+        static HittableList randomScene()
+        {
+            HittableList world = new HittableList();
+
+            var groundMaterial = new Lambertian(new Vector3(0.5f, 0.5f, 0.5f));
+            world.add(new Sphere(new Vector3(0.0f, -1000.0f, 0.0f), 1000.0f, groundMaterial));
+
+            for (int a = -11; a < 11; ++a)
+            {
+                for (int b = -11; b < 11; ++b)
+                {
+                    var whichMat = Utility.RandomF();
+                    Vector3 center = new Vector3(a + 0.9f * Utility.RandomF(), 0.2f, b + 0.9f * Utility.RandomF());
+
+                    Material mat = null;
+
+                    if (Vector3.Distance(center, new Vector3(4.0f, 0.2f, 0.0f)) <= 0.9f)
+                        continue;
+
+                    if (whichMat < 0.8f)
+                        mat = new Lambertian(Utility.RandomColor() * Utility.RandomColor());
+                    else if (whichMat < 0.95f)
+                        mat = new Metal(Utility.RandomColor(0.5f, 1.0f), Utility.RandomF(0.0f, 0.5f));
+                    else
+                        mat = new Dielectric(1.5f);
+                    
+                    world.add(new Sphere(center, 0.2f, mat));
+                }
+            }
+
+            var material1 = new Dielectric(1.5f);
+            world.add(new Sphere(new Vector3(0.0f, 1.0f, 0.0f), 1.0f, material1));
+
+            var material2 = new Lambertian(new Vector3(0.4f, 0.2f, 0.1f));
+            world.add(new Sphere(new Vector3(-4.0f, 1.0f, 0.0f), 1.0f, material2));
+
+            var material3 = new Metal(new Vector3(0.7f, 0.6f, 0.5f), 0.0f);
+            world.add(new Sphere(new Vector3(4.0f, 1.0f, 0.0f), 1.0f, material3));
+
+            return world;
+        }
+
         static void Main()
         {
             const float aspectRatio = 16.0f / 9.0f;
@@ -48,17 +90,20 @@ namespace RayTracingInOneWeekend
 
             byte[] imageBuffer = new byte[stride * imageHeight];
 
-            HittableList world = new HittableList();
-            world.add(new Sphere(new Vector3(0.0f, 0.0f, -1.0f), 0.5f, new Lambertian(new Vector3(0.1f, 0.2f, 0.5f))));
-            world.add(new Sphere(new Vector3(0.0f, -100.5f, -1.0f), 100.0f, new Lambertian(new Vector3(0.8f, 0.8f, 0.0f))));
-            world.add(new Sphere(new Vector3(1.0f, 0.0f, -1.0f), 0.5f, new Metal(new Vector3(0.8f, 0.6f, 0.2f), 0.3f)));
-            world.add(new Sphere(new Vector3(-1.0f, 0.0f, -1.0f), 0.5f, new Dielectric(1.5f)));
-            world.add(new Sphere(new Vector3(-1.0f, 0.0f, -1.0f), -0.45f, new Dielectric(1.5f)));
+            HittableList world = randomScene();
+            // HittableList world = new HittableList();
+            // world.add(new Sphere(new Vector3(0.0f, 0.0f, -1.0f), 0.5f, new Lambertian(new Vector3(0.1f, 0.2f, 0.5f))));
+            // world.add(new Sphere(new Vector3(0.0f, -100.5f, -1.0f), 100.0f, new Lambertian(new Vector3(0.8f, 0.8f, 0.0f))));
+            // world.add(new Sphere(new Vector3(1.0f, 0.0f, -1.0f), 0.5f, new Metal(new Vector3(0.8f, 0.6f, 0.2f), 0.3f)));
+            // world.add(new Sphere(new Vector3(-1.0f, 0.0f, -1.0f), 0.5f, new Dielectric(1.5f)));
+            // world.add(new Sphere(new Vector3(-1.0f, 0.0f, -1.0f), -0.45f, new Dielectric(1.5f)));
 
-            Vector3 lookFrom = new Vector3(3.0f, 3.0f, 2.0f);
-            Vector3 lookAt = new Vector3(0.0f, 0.0f, -1.0f);
-            float focusDistance = Vector3.Distance(lookFrom, lookAt);
-            float aperture = 1.0f;
+            // Vector3 lookFrom = new Vector3(3.0f, 3.0f, 2.0f);
+            // Vector3 lookAt = new Vector3(0.0f, 0.0f, -1.0f);
+            Vector3 lookFrom = new Vector3(13.0f, 2.0f, 3.0f);
+            Vector3 lookAt = Vector3.Zero;
+            float focusDistance = 10.0f;
+            float aperture = 0.1f;
             Camera camera = new Camera(
                 lookFrom,
                 lookAt,
@@ -106,7 +151,7 @@ namespace RayTracingInOneWeekend
             DateTime end = DateTime.Now;
             Console.WriteLine("End at: {0}", end.ToString("F"));
             TimeSpan deltaTime = end - start;
-            Console.WriteLine("Took {0} ms", deltaTime.Milliseconds);
+            Console.WriteLine("Took: {0} hours {1} minutes {2} seconds", deltaTime.Hours, deltaTime.Minutes, deltaTime.Seconds + Math.Round(deltaTime.Milliseconds / 1000.0, 3));
         }
     }
 }

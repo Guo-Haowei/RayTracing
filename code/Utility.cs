@@ -39,6 +39,15 @@ namespace RayTracingInOneWeekend {
             return flip * ret;
         }
 
+        public static Vector3 RandomColor()
+        {
+            return new Vector3(RandomF(), RandomF(), RandomF());
+        }
+        public static Vector3 RandomColor(float min, float max)
+        {
+            return new Vector3(RandomF(min, max), RandomF(min, max), RandomF(min, max));
+        }
+
         public static Vector3 RandomUnitVectorInDisk()
         {
             for (;;)
