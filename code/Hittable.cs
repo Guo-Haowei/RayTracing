@@ -7,6 +7,7 @@ namespace RayTracingInOneWeekend {
     {
         public Vector3 point;        
         public Vector3 normal;
+        public Material material;
         public float t;
 
         public void setFaceNormal(in Ray ray, in Vector3 outwardNormal)
@@ -16,7 +17,7 @@ namespace RayTracingInOneWeekend {
         }
     }
 
-    abstract public class Hittable
+    public abstract class Hittable
     {
         public abstract bool hit(in Ray ray, float tMin, float tMax, ref HitRecord record);
     }

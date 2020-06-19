@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Numerics;
 using System.Drawing;
@@ -10,7 +9,7 @@ namespace RayTracingInOneWeekend
 {
     class Program
     {
-        static Vector3 rayColor(ref Ray ray, in HittableList world, int depth)
+        static Vector3 rayColor(in Ray ray, in HittableList world, int depth)
         {
             if (depth <= 0)
                 return Vector3.Zero;
@@ -18,10 +17,14 @@ namespace RayTracingInOneWeekend
             HitRecord hitRecord = new HitRecord();
             if (world.hit(ray, 0.001f, float.PositiveInfinity, ref hitRecord))
             {
-                Vector3 target = hitRecord.point + hitRecord.normal + Utility.RandomUnitVector(hitRecord.normal);
-                ray.origin = hitRecord.point;
-                ray.direction = target - hitRecord.point;
-                return 0.5f * rayColor(ref ray, world, depth - 1);
+                Ray scattered = new Ray();
+                Vector3 attenuation = new Vector3();
+                if (hitRecord.material.scatter(ray, hitRecord, ref attenuation, ref scattered))
+                {
+                    return attenuation * rayColor(scattered, world, depth - 1);
+                }
+
+                return Vector3.Zero;
             }
 
             Vector3 unitDirection = Vector3.Normalize(ray.direction);
@@ -46,8 +49,10 @@ namespace RayTracingInOneWeekend
             byte[] imageBuffer = new byte[stride * imageHeight];
 
             HittableList world = new HittableList();
-            world.add(new Sphere(new Vector3(0.0f, 0.0f, -1.0f), 0.5f));
-            world.add(new Sphere(new Vector3(0.0f, -100.5f, -1.0f), 100.0f));
+            world.add(new Sphere(new Vector3(0.0f, 0.0f, -1.0f), 0.5f, new Lambertian(new Vector3(0.7f, 0.3f, 0.3f))));
+            world.add(new Sphere(new Vector3(0.0f, -100.5f, -1.0f), 100.0f, new Lambertian(new Vector3(0.8f, 0.8f, 0.0f))));
+            world.add(new Sphere(new Vector3(1.0f, 0.0f, -1.0f), 0.5f, new Metal(new Vector3(0.8f, 0.6f, 0.2f), 1.0f)));
+            world.add(new Sphere(new Vector3(-1.0f, 0.0f, -1.0f), 0.5f, new Metal(new Vector3(0.8f, 0.8f, 0.8f), 0.3f)));
 
             Camera camera = new Camera(aspectRatio);
 
@@ -65,7 +70,7 @@ namespace RayTracingInOneWeekend
                         float u = (i + Utility.RandomF()) / (imageWidth - 1);
                         float v = (j + Utility.RandomF()) / (imageHeight - 1);
                         Ray ray = camera.getRay(u, v);
-                        color += rayColor(ref ray, world, maxDepth);
+                        color += rayColor(ray, world, maxDepth);
                     }
 
                     // devide the color total by the number of samples and gamma-correct for gamma = 2.0

@@ -5,10 +5,11 @@ namespace RayTracingInOneWeekend {
 
     public class Sphere : Hittable
     {
-        public Sphere(in Vector3 center, float radius)
+        public Sphere(in Vector3 center, float radius, Material material)
         {
             this.center = center;
             this.radius = radius;
+            this.material = material;
         }
         public override bool hit(in Ray ray, float tMin, float tMax, ref HitRecord record)
         {
@@ -33,6 +34,7 @@ namespace RayTracingInOneWeekend {
                 record.point = ray.at(root);
                 Vector3 outwardNormal = (record.point - center) / radius;
                 record.setFaceNormal(ray, outwardNormal);
+                record.material = material;
                 return true;
             }
 
@@ -41,6 +43,7 @@ namespace RayTracingInOneWeekend {
 
         public Vector3 center;
         public float radius;
+        readonly protected Material material;
     }
 
 }

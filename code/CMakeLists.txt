@@ -1,11 +1,12 @@
 ADD_EXECUTABLE(RayTracingInOneWeekend
-    Utility.cs
-    Ray.cs
-    Hittable.cs
-    Sphere.cs
-    HittableList.cs
     Camera.cs
+    HittableList.cs
+    Hittable.cs
     Main.cs
+    Material.cs
+    Ray.cs
+    Sphere.cs
+    Utility.cs
 )
 
 SET_PROPERTY(TARGET RayTracingInOneWeekend PROPERTY
