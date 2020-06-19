@@ -57,7 +57,7 @@ namespace RayTracingInOneWeekend {
 
         public Vector3 center;
         public float radius;
-        readonly protected Material material;
+        protected readonly Material material;
     }
 
     public class MovingSphere : Hittable

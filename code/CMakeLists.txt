@@ -9,6 +9,7 @@ ADD_EXECUTABLE(RayTracingInOneWeekend
     Material.cs
     Metal.cs
     Ray.cs
+    Rect.cs
     Sphere.cs
     Texture.cs
     Utility.cs

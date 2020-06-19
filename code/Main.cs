@@ -30,51 +30,22 @@ namespace RayTracingInOneWeekend
             return emitted + attenuation * rayColor(scattered, background, world, depth - 1);
         }
 
-        static HittableList randomScene()
+        static HittableList createScene()
         {
             HittableList world = new HittableList();
 
-            var groundMaterial = new Lambertian(new CheckerTexture(new SolidColor(0.2f, 0.3f, 0.1f), new SolidColor(0.9f)));
-            // var groundMaterial = new Lambertian(new SolidColor(0.5f, 0.5f, 0.5f));
-            world.add(new Sphere(new Vector3(0.0f, -1000.0f, 0.0f), 1000.0f, groundMaterial));
+            var red = new Lambertian(new SolidColor(0.65f, 0.05f, 0.05f));
+            var green = new Lambertian(new SolidColor(0.12f, 0.45f, 0.15f));
+            var white = new Lambertian(new SolidColor(0.73f));
+            var light = new DiffuseLight(new SolidColor(15.0f));
 
-            for (int a = -11; a < 11; ++a)
-            {
-                for (int b = -11; b < 11; ++b)
-                {
-                    var whichMat = Utility.RandomF();
-                    Vector3 center = new Vector3(a + 0.9f * Utility.RandomF(), 0.2f, b + 0.9f * Utility.RandomF());
-
-                    Material mat = null;
-
-                    if (Vector3.Distance(center, new Vector3(4.0f, 0.2f, 0.0f)) <= 0.9f)
-                        continue;
-
-                    if (whichMat < 0.8f)
-                    {
-                        mat = new Lambertian(new SolidColor(Utility.RandomColor() * Utility.RandomColor()));
-                        Vector3 center1 = center + new Vector3(0.0f, Utility.RandomF(0.0f, 0.5f), 0.0f);
-                        world.add(new MovingSphere(center, center1, 0.0f, 1.0f, 0.2f, mat));
-                        continue;
-                    }
-                    else if (whichMat < 0.95f)
-                        mat = new Metal(Utility.RandomColor(0.5f, 1.0f), Utility.RandomF(0.0f, 0.5f));
-                    else
-                        mat = new Dielectric(1.5f);
-                    
-                    world.add(new Sphere(center, 0.2f, mat));
-                }
-            }
-
-            // var material1 = new Dielectric(1.5f);
-            var material1 = new DiffuseLight(new SolidColor(1.0f));
-            world.add(new Sphere(new Vector3(0.0f, 1.0f, 0.0f), 1.0f, material1));
-
-            var material2 = new Lambertian(new SolidColor(0.4f, 0.2f, 0.1f));
-            world.add(new Sphere(new Vector3(-4.0f, 1.0f, 0.0f), 1.0f, material2));
-
-            var material3 = new Metal(new Vector3(0.7f, 0.6f, 0.5f), 0.0f);
-            world.add(new Sphere(new Vector3(4.0f, 1.0f, 0.0f), 1.0f, material3));
+            float s = 555.0f;
+            world.add(new YZRect(Vector2.Zero, s * Vector2.One, s, green));
+            world.add(new YZRect(Vector2.Zero, s * Vector2.One, 0.0f, red));
+            world.add(new XZRect(Vector2.Zero, s * Vector2.One, s, white));
+            world.add(new XZRect(Vector2.Zero, s * Vector2.One, 0.0f, white));
+            world.add(new XYRect(Vector2.Zero, s * Vector2.One, s, white));
+            world.add(new XZRect(new Vector2(213.0f), new Vector2(343.0f), s - 1, light));
 
             return world;
         }
@@ -84,34 +55,26 @@ namespace RayTracingInOneWeekend
             const float aspectRatio = 16.0f / 9.0f;
             const int imageWidth = 384;
             const int imageHeight = (int)(imageWidth / aspectRatio);
-            const int samplesPerPixel = 100;
-            const int maxDepth = 20;
-            // const int maxDepth = 50;
+            const int samplesPerPixel = 1000;
+            const int maxDepth = 50;
 
             const int component = 3;
             const int stride = component * imageWidth;
 
             byte[] imageBuffer = new byte[stride * imageHeight];
 
-            HittableList world = randomScene();
-            // HittableList world = new HittableList();
-            // world.add(new Sphere(new Vector3(0.0f, 0.0f, -1.0f), 0.5f, new Lambertian(new Vector3(0.1f, 0.2f, 0.5f))));
-            // world.add(new Sphere(new Vector3(0.0f, -100.5f, -1.0f), 100.0f, new Lambertian(new Vector3(0.8f, 0.8f, 0.0f))));
-            // world.add(new Sphere(new Vector3(1.0f, 0.0f, -1.0f), 0.5f, new Metal(new Vector3(0.8f, 0.6f, 0.2f), 0.3f)));
-            // world.add(new Sphere(new Vector3(-1.0f, 0.0f, -1.0f), 0.5f, new Dielectric(1.5f)));
-            // world.add(new Sphere(new Vector3(-1.0f, 0.0f, -1.0f), -0.45f, new Dielectric(1.5f)));
+            HittableList world = createScene();
 
-            // Vector3 lookFrom = new Vector3(3.0f, 3.0f, 2.0f);
-            // Vector3 lookAt = new Vector3(0.0f, 0.0f, -1.0f);
-            Vector3 lookFrom = new Vector3(13.0f, 2.0f, 3.0f);
-            Vector3 lookAt = Vector3.Zero;
+            Vector3 lookFrom = new Vector3(278.0f, 278.0f, -800.0f);
+            Vector3 lookAt = new Vector3(278.0f, 278.0f, 0.0f);
             float focusDistance = 10.0f;
-            float aperture = 0.1f;
+            float aperture = 0.0f;
+            float fov = 40.0f;
             Camera camera = new Camera(
                 lookFrom,
                 lookAt,
                 Vector3.UnitY,
-                20.0f,
+                fov,
                 aspectRatio,
                 aperture,
                 focusDistance,
