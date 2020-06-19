@@ -24,12 +24,32 @@ namespace RayTracingInOneWeekend {
             return min + (max - min) * RandomF();
         }
 
+        public static float TanF(float a)
+        {
+            return (float)Math.Tan(a);
+        }
+
+        public static float SinF(float a)
+        {
+            return (float)Math.Sin(a);
+        }
+
+        public static float CosF(float a)
+        {
+            return (float)Math.Cos(a);
+        }
+
+        public static float SqrtF(float d)
+        {
+            return (float)Math.Sqrt(d);
+        }
+
         public static Vector3 RandomUnitVector()
         {
             float a = RandomF(0.0f, TwoPi);
             float z = RandomF(-1.0f, 1.0f);
             float r = (float)Math.Sqrt(1.0f - z * z);
-            return new Vector3(r * (float)Math.Cos(a), r * (float)Math.Sin(a), z);
+            return new Vector3(r * CosF(a), r * SinF(a), z);
         }
 
         public static Vector3 RandomUnitVectorInHemisphere(in Vector3 normal)
@@ -48,15 +68,11 @@ namespace RayTracingInOneWeekend {
             return new Vector3(RandomF(min, max), RandomF(min, max), RandomF(min, max));
         }
 
-        public static Vector3 RandomUnitVectorInDisk()
+        public static Vector2 RandomUnitVectorInDisk()
         {
-            for (;;)
-            {
-
-                Vector3 ret = new Vector3(RandomF(-1.0f, 1.0f), RandomF(-1.0f, 1.0f), 0.0f);
-                if (Vector3.Dot(ret, ret) < 1.0f)
-                    return ret;
-            }
+            float radius = RandomF();
+            float angle = RandomF(0.0f, TwoPi);
+            return new Vector2(radius * SinF(angle), radius * CosF(angle));
         }
 
         public static float Clamp(float value, float min, float max)
@@ -68,7 +84,7 @@ namespace RayTracingInOneWeekend {
         {
             float cosTheta = Vector3.Dot(-uv, n);
             Vector3 outParallel = refractionPower * (uv + cosTheta * n);
-            Vector3 outPerpendicular = -(float)Math.Sqrt(1.0f - Vector3.Dot(outParallel, outParallel)) * n;
+            Vector3 outPerpendicular = -SqrtF(1.0f - Vector3.Dot(outParallel, outParallel)) * n;
             return outParallel + outPerpendicular;
         }
 

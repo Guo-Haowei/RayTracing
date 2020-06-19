@@ -21,7 +21,7 @@ namespace RayTracingInOneWeekend {
 
             if (discriminant > 0.0f)
             {
-                float discriminantSqrt = (float)Math.Sqrt(discriminant);
+                float discriminantSqrt = Utility.SqrtF(discriminant);
                 float root = (-halfB - discriminantSqrt) / a;
                 if (root <= tMin || root >= tMax)
                 {

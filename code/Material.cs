@@ -62,7 +62,7 @@ public class Dielectric : Material
         scattered.origin = record.point;
 
         float cosTheta = Math.Min(-Vector3.Dot(unitDirection, record.normal), 1.0f);
-        float sinTheta = (float)Math.Sqrt(1.0f - cosTheta * cosTheta);
+        float sinTheta = Utility.SqrtF(1.0f - cosTheta * cosTheta);
         float reflectionProbability = Utility.Schlick(cosTheta, factor);
 
         if (factor * sinTheta > 1.0f || Utility.RandomF() < reflectionProbability)

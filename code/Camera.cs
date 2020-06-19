@@ -15,7 +15,7 @@ namespace RayTracingInOneWeekend {
             float focusDistance)
         {
             float theta = Utility.DegreeToRadians(fov);
-            float h = (float)Math.Tan(0.5f * theta);
+            float h = Utility.TanF(0.5f * theta);
             float viewportHeight = 2.0f * h;
             float viewportWidth = aspectRatio * viewportHeight;
 
@@ -32,7 +32,7 @@ namespace RayTracingInOneWeekend {
 
         public Ray getRay(float s, float t)
         {
-            Vector3 rd = lensRadius * Utility.RandomUnitVectorInDisk();
+            Vector2 rd = lensRadius * Utility.RandomUnitVectorInDisk();
             Vector3 offset = u * rd.X + v * rd.Y;
             Ray ray = new Ray();
             ray.origin = origin + offset;
