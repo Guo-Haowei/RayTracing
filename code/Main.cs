@@ -10,12 +10,18 @@ namespace RayTracingInOneWeekend
 {
     class Program
     {
-        static Vector3 rayColor(in Ray ray, in HittableList world)
+        static Vector3 rayColor(ref Ray ray, in HittableList world, int depth)
         {
+            if (depth <= 0)
+                return Vector3.Zero;
+
             HitRecord hitRecord = new HitRecord();
-            if (world.hit(ray, 0.0f, float.PositiveInfinity, ref hitRecord))
+            if (world.hit(ray, 0.001f, float.PositiveInfinity, ref hitRecord))
             {
-                return 0.5f * (hitRecord.normal + Vector3.One);
+                Vector3 target = hitRecord.point + hitRecord.normal + Utility.RandomUnitVector(hitRecord.normal);
+                ray.origin = hitRecord.point;
+                ray.direction = target - hitRecord.point;
+                return 0.5f * rayColor(ref ray, world, depth - 1);
             }
 
             Vector3 unitDirection = Vector3.Normalize(ray.direction);
@@ -32,6 +38,7 @@ namespace RayTracingInOneWeekend
             const int imageWidth = 384;
             const int imageHeight = (int)(imageWidth / aspectRatio);
             const int samplesPerPixel = 100;
+            const int maxDepth = 50;
 
             const int component = 3;
             const int stride = component * imageWidth;
@@ -49,38 +56,40 @@ namespace RayTracingInOneWeekend
 
             Parallel.For(0, imageWidth * imageHeight,
                 index => {
-                    Random random = new Random();
-
                     int i = index % imageWidth;
                     int j = imageHeight - (index / imageWidth + 1);
 
                     Vector3 color = Vector3.Zero;
                     for (int s = 0; s < samplesPerPixel; ++s)
                     {
-                        float u = (i + Utility.RandomF(random)) / (imageWidth - 1);
-                        float v = (j + Utility.RandomF(random)) / (imageHeight - 1);
+                        float u = (i + Utility.RandomF()) / (imageWidth - 1);
+                        float v = (j + Utility.RandomF()) / (imageHeight - 1);
                         Ray ray = camera.getRay(u, v);
-                        color += rayColor(ray, world);
+                        color += rayColor(ref ray, world, maxDepth);
                     }
 
-                    color *= (1.0f / samplesPerPixel);
-                    byte br = (byte)(255.999f * color.X);
-                    byte bg = (byte)(255.999f * color.Y);
-                    byte bb = (byte)(255.999f * color.Z);
-                    imageBuffer[3 * index] = bb;
-                    imageBuffer[3 * index + 1] = bg;
-                    imageBuffer[3 * index + 2] = br;
+                    // devide the color total by the number of samples and gamma-correct for gamma = 2.0
+                    float scale = 1.0f / samplesPerPixel;
+                    float r = color.X;
+                    float g = color.Y;
+                    float b = color.Z;
+                    r = (float)Math.Sqrt(scale * r);
+                    g = (float)Math.Sqrt(scale * g);
+                    b = (float)Math.Sqrt(scale * b);
+                    imageBuffer[3 * index + 0] = (byte)(255.999f * b);
+                    imageBuffer[3 * index + 1] = (byte)(255.999f * g);
+                    imageBuffer[3 * index + 2] = (byte)(255.999f * r);
                 }
             );
+
+            Bitmap bitmap = new Bitmap(imageWidth, imageHeight, stride, PixelFormat.Format24bppRgb, Marshal.UnsafeAddrOfPinnedArrayElement(imageBuffer, 0));
+            bitmap.Save("../image.png", ImageFormat.Png);
+            bitmap.Dispose();
 
             DateTime end = DateTime.Now;
             Console.WriteLine("End at: {0}", end.ToString("F"));
             TimeSpan deltaTime = end - start;
             Console.WriteLine("Took {0} ms", deltaTime.Milliseconds);
-
-            Bitmap bitmap = new Bitmap(imageWidth, imageHeight, stride, PixelFormat.Format24bppRgb, Marshal.UnsafeAddrOfPinnedArrayElement(imageBuffer, 0));
-            bitmap.Save("../image.png", ImageFormat.Png);
-            bitmap.Dispose();
         }
     }
 }
