@@ -56,6 +56,11 @@ namespace RayTracingInOneWeekend {
             return r0 + (1.0f - r0) * (float)Math.Pow(1 - cosine, 5.0f);
         }
 
+        public static float DegreeToRadians(float degree)
+        {
+            return ((float)Math.PI / 180.0f) * degree;
+        }
+
         [ThreadStatic]
         private static Random random;
     }
