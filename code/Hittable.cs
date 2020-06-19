@@ -9,11 +9,13 @@ namespace RayTracingInOneWeekend {
         public Vector3 normal;
         public Material material;
         public float t;
+        public bool frontFace;
 
         public void setFaceNormal(in Ray ray, in Vector3 outwardNormal)
         {
-            float flipNormal = -Math.Sign(Vector3.Dot(ray.direction, outwardNormal));
-            normal = flipNormal * outwardNormal;
+            int sign = -Math.Sign(Vector3.Dot(ray.direction, outwardNormal));
+            frontFace = sign > 0; 
+            normal = sign * outwardNormal;
         }
     }
 

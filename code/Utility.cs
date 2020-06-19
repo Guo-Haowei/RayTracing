@@ -36,9 +36,24 @@ namespace RayTracingInOneWeekend {
             return flip * ret;
         }
 
-        public static float clamp(float value, float min, float max)
+        public static float Clamp(float value, float min, float max)
         {
             return Math.Min(Math.Max(min, value), max);
+        }
+
+        public static Vector3 Refract(in Vector3 uv, in Vector3 n, float refractionPower)
+        {
+            float cosTheta = Vector3.Dot(-uv, n);
+            Vector3 outParallel = refractionPower * (uv + cosTheta * n);
+            Vector3 outPerpendicular = -(float)Math.Sqrt(1.0f - Vector3.Dot(outParallel, outParallel)) * n;
+            return outParallel + outPerpendicular;
+        }
+
+        public static float Schlick(float cosine, float reflectionPower)
+        {
+            float r0 = (1.0f - reflectionPower) / (1.0f + reflectionPower);
+            r0 = r0 * r0; 
+            return r0 + (1.0f - r0) * (float)Math.Pow(1 - cosine, 5.0f);
         }
 
         [ThreadStatic]
