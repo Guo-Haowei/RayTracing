@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Numerics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -42,28 +44,39 @@ namespace RayTracingInOneWeekend
 
             Camera camera = new Camera(aspectRatio);
 
-            for (int index = 0; index < imageWidth * imageHeight; ++index)
-            {
-                int i = index % imageWidth;
-                int j = imageHeight - (index / imageWidth + 1);
+            DateTime start = DateTime.Now;
+            Console.WriteLine("Start at: {0}", start.ToString("F"));
 
-                Vector3 color = Vector3.Zero;
-                for (int s = 0; s < samplesPerPixel; ++s)
-                {
-                    float u = (i + Utility.RandomF()) / (imageWidth - 1);
-                    float v = (j + Utility.RandomF()) / (imageHeight - 1);
-                    Ray ray = camera.getRay(u, v);
-                    color += rayColor(ray, world);
+            Parallel.For(0, imageWidth * imageHeight,
+                index => {
+                    Random random = new Random();
+
+                    int i = index % imageWidth;
+                    int j = imageHeight - (index / imageWidth + 1);
+
+                    Vector3 color = Vector3.Zero;
+                    for (int s = 0; s < samplesPerPixel; ++s)
+                    {
+                        float u = (i + Utility.RandomF(random)) / (imageWidth - 1);
+                        float v = (j + Utility.RandomF(random)) / (imageHeight - 1);
+                        Ray ray = camera.getRay(u, v);
+                        color += rayColor(ray, world);
+                    }
+
+                    color *= (1.0f / samplesPerPixel);
+                    byte br = (byte)(255.999f * color.X);
+                    byte bg = (byte)(255.999f * color.Y);
+                    byte bb = (byte)(255.999f * color.Z);
+                    imageBuffer[3 * index] = bb;
+                    imageBuffer[3 * index + 1] = bg;
+                    imageBuffer[3 * index + 2] = br;
                 }
+            );
 
-                color *= (1.0f / samplesPerPixel);
-                byte br = (byte)(255.999f * color.X);
-                byte bg = (byte)(255.999f * color.Y);
-                byte bb = (byte)(255.999f * color.Z);
-                imageBuffer[3 * index] = bb;
-                imageBuffer[3 * index + 1] = bg;
-                imageBuffer[3 * index + 2] = br;
-            }
+            DateTime end = DateTime.Now;
+            Console.WriteLine("End at: {0}", end.ToString("F"));
+            TimeSpan deltaTime = end - start;
+            Console.WriteLine("Took {0} ms", deltaTime.Milliseconds);
 
             Bitmap bitmap = new Bitmap(imageWidth, imageHeight, stride, PixelFormat.Format24bppRgb, Marshal.UnsafeAddrOfPinnedArrayElement(imageBuffer, 0));
             bitmap.Save("../image.png", ImageFormat.Png);

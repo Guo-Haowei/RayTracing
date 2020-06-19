@@ -5,15 +5,15 @@ namespace RayTracingInOneWeekend {
 
     public class Utility
     {
-        public static float RandomF()
+        public static float RandomF(Random random)
         {
             // Returns a random float in [0 1)
-            return (float)rand.NextDouble();
+            return (float)random.NextDouble();
         }
-        public static float RandomF(float min, float max)
+        public static float RandomF(float min, float max, Random random)
         {
             // Returns a random float in [min max)
-            return min + (max - min) * RandomF();
+            return min + (max - min) * RandomF(random);
         }
 
         public static float clamp(float value, float min, float max)
@@ -21,7 +21,6 @@ namespace RayTracingInOneWeekend {
             return Math.Min(Math.Max(min, value), max);
         }
 
-        static private Random rand = new Random();
     }
 
 }
