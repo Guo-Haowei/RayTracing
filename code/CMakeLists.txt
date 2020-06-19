@@ -6,6 +6,7 @@ ADD_EXECUTABLE(RayTracingInOneWeekend
 SET_PROPERTY(TARGET RayTracingInOneWeekend PROPERTY
     VS_DOTNET_REFERENCES
     "System.Drawing"
+    "System.Runtime.Extensions"
     "System.Numerics"
     "System.Numerics.Vectors"
 )

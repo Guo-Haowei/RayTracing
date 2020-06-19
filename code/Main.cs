@@ -8,25 +8,35 @@ namespace RayTracingInOneWeekend
 {
     class Program
     {
-        static bool hitSphere(in Vector3 center, float radius, in Ray ray)
+        static float hitSphere(in Vector3 center, float radius, in Ray ray)
         {
             Vector3 oc = ray.origin - center;
             float a = Vector3.Dot(ray.direction, ray.direction);
             float halfB = Vector3.Dot(oc, ray.direction);
             float c = Vector3.Dot(oc, oc) - radius * radius;
-            float d = halfB * halfB - a * c;
+            float discriminant = halfB * halfB - a * c;
 
-            return d > 0.0f;
+            if (discriminant < 0)
+                return -1.0f;
+            else
+                return (-halfB - (float)Math.Sqrt(discriminant)) / a;
         }
 
         static Vector3 rayColor(in Ray ray)
         {
-            if (hitSphere(-Vector3.UnitZ, 0.5f, ray))
-                return Vector3.UnitX;
+            Vector3 center = -Vector3.UnitZ;
+            float t = hitSphere(center, 0.5f, ray);
+
+            if (t > 0.0f)
+            {
+                Vector3 N = Vector3.Normalize(ray.at(t) - center);
+                N = 0.5f * (N + Vector3.One);
+                return N;
+            }
 
             Vector3 unitDirection = Vector3.Normalize(ray.direction);
 
-            float t = 0.5f * unitDirection.Y + 0.5f;
+            t = 0.5f * unitDirection.Y + 0.5f;
             Vector3 white = new Vector3(1.0f, 1.0f, 1.0f);
             Vector3 blue = new Vector3(0.5f, 0.7f, 1.0f);
 
