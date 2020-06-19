@@ -1,9 +1,13 @@
 ADD_EXECUTABLE(RayTracingInOneWeekend
     Camera.cs
+    Dielectric.cs
+    DiffuseLight.cs
     HittableList.cs
     Hittable.cs
+    Lambertian.cs
     Main.cs
     Material.cs
+    Metal.cs
     Ray.cs
     Sphere.cs
     Texture.cs

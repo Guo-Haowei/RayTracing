@@ -8,7 +8,8 @@ namespace RayTracingInOneWeekend {
         public Vector3 point;        
         public Vector3 normal;
         public Material material;
-        public float t, u, v;
+        public Vector2 uv;
+        public float t;
         public bool frontFace;
 
         public void setFaceNormal(in Ray ray, in Vector3 outwardNormal)

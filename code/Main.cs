@@ -9,31 +9,25 @@ namespace RayTracingInOneWeekend
 {
     class Program
     {
-        static Vector3 rayColor(in Ray ray, in HittableList world, int depth)
+        static Vector3 rayColor(in Ray ray, in Vector3 background, in HittableList world, int depth)
         {
             if (depth <= 0)
                 return Vector3.Zero;
 
             HitRecord hitRecord = new HitRecord();
-            if (world.hit(ray, 0.001f, float.PositiveInfinity, ref hitRecord))
-            {
-                Ray scattered = new Ray();
-                scattered.time = 0.0f;
-                Vector3 attenuation = new Vector3();
-                if (hitRecord.material.scatter(ray, hitRecord, ref attenuation, ref scattered))
-                {
-                    return attenuation * rayColor(scattered, world, depth - 1);
-                }
 
-                return Vector3.Zero;
-            }
+            if (!(world.hit(ray, 0.001f, float.PositiveInfinity, ref hitRecord)))
+                return background;
 
-            Vector3 unitDirection = Vector3.Normalize(ray.direction);
-            float t = 0.5f * unitDirection.Y + 0.5f;
-            Vector3 white = new Vector3(1.0f, 1.0f, 1.0f);
-            Vector3 blue = new Vector3(0.5f, 0.7f, 1.0f);
-
-            return (1.0f - t) * white + t * blue;
+            Ray scattered = new Ray();
+            scattered.time = 0.0f;
+            Vector3 attenuation = new Vector3();
+            Material mat = hitRecord.material;
+            Vector3 emitted = mat.emit(hitRecord.uv, hitRecord.point);
+            if (!mat.scatter(ray, hitRecord, ref attenuation, ref scattered))
+                return emitted;
+            
+            return emitted + attenuation * rayColor(scattered, background, world, depth - 1);
         }
 
         static HittableList randomScene()
@@ -72,7 +66,8 @@ namespace RayTracingInOneWeekend
                 }
             }
 
-            var material1 = new Dielectric(1.5f);
+            // var material1 = new Dielectric(1.5f);
+            var material1 = new DiffuseLight(new SolidColor(1.0f));
             world.add(new Sphere(new Vector3(0.0f, 1.0f, 0.0f), 1.0f, material1));
 
             var material2 = new Lambertian(new SolidColor(0.4f, 0.2f, 0.1f));
@@ -90,8 +85,8 @@ namespace RayTracingInOneWeekend
             const int imageWidth = 384;
             const int imageHeight = (int)(imageWidth / aspectRatio);
             const int samplesPerPixel = 100;
-            // const int maxDepth = 20;
-            const int maxDepth = 50;
+            const int maxDepth = 20;
+            // const int maxDepth = 50;
 
             const int component = 3;
             const int stride = component * imageWidth;
@@ -137,7 +132,7 @@ namespace RayTracingInOneWeekend
                         float u = (i + Utility.RandomF()) / (imageWidth - 1);
                         float v = (j + Utility.RandomF()) / (imageHeight - 1);
                         Ray ray = camera.getRay(u, v);
-                        color += rayColor(ray, world, maxDepth);
+                        color += rayColor(ray, Vector3.Zero, world, maxDepth);
                     }
 
                     // devide the color total by the number of samples and gamma-correct for gamma = 2.0

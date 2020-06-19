@@ -4,7 +4,7 @@ namespace RayTracingInOneWeekend {
 
     public abstract class Texture
     {
-        public abstract Vector3 value(float u, float v, in Vector3 point);
+        public abstract Vector3 value(in Vector2 uv, in Vector3 point);
     }
 
     public class SolidColor : Texture
@@ -23,7 +23,7 @@ namespace RayTracingInOneWeekend {
             this.color = new Vector3(r, g, b);
         }
 
-        public override Vector3 value(float u, float v, in Vector3 point)
+        public override Vector3 value(in Vector2 uv, in Vector3 point)
         {
             return color;
         }
@@ -39,10 +39,10 @@ namespace RayTracingInOneWeekend {
             this.even = even;
         }
 
-        public override Vector3 value(float u, float v, in Vector3 point)
+        public override Vector3 value(in Vector2 uv, in Vector3 point)
         {
             float sine = Utility.SinF(10.0f * point.X) * Utility.SinF(10.0f * point.Y) * Utility.SinF(10.0f * point.Z);
-            return sine < 0.0f ? odd.value(u, v, point) : even.value(u, v, point);
+            return sine < 0.0f ? odd.value(uv, point) : even.value(uv, point);
         }
 
         private readonly Texture odd;
