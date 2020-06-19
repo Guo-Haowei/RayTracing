@@ -29,44 +29,40 @@ namespace RayTracingInOneWeekend
             const float aspectRatio = 16.0f / 9.0f;
             const int imageWidth = 384;
             const int imageHeight = (int)(imageWidth / aspectRatio);
+            const int samplesPerPixel = 100;
 
             const int component = 3;
             const int stride = component * imageWidth;
 
             byte[] imageBuffer = new byte[stride * imageHeight];
 
-            const float viewportHeight = 2.0f;
-            const float viewportWidth = aspectRatio * viewportHeight;
-            const float focalLength = 1.0f;
-
-            Vector3 origin = Vector3.Zero;
-            Vector3 horizontal = new Vector3(viewportWidth, 0.0f, 0.0f);
-            Vector3 vertical = new Vector3(0.0f, viewportHeight, 0.0f);
-            Vector3 lowerLeft = origin - 0.5f * horizontal - 0.5f * vertical - new Vector3(0.0f, 0.0f, focalLength);
-
             HittableList world = new HittableList();
             world.add(new Sphere(new Vector3(0.0f, 0.0f, -1.0f), 0.5f));
             world.add(new Sphere(new Vector3(0.0f, -100.5f, -1.0f), 100.0f));
 
-            int index = 0;
-            for (int j = imageHeight - 1; j >= 0; --j)
+            Camera camera = new Camera(aspectRatio);
+
+            for (int index = 0; index < imageWidth * imageHeight; ++index)
             {
-                for (int i = 0; i < imageWidth; ++i)
+                int i = index % imageWidth;
+                int j = imageHeight - (index / imageWidth + 1);
+
+                Vector3 color = Vector3.Zero;
+                for (int s = 0; s < samplesPerPixel; ++s)
                 {
-                    float u = (float)i / (imageWidth - 1);
-                    float v = (float)j / (imageHeight - 1);
-                    Ray ray = new Ray(origin, lowerLeft + u * horizontal + v * vertical - origin);
-
-                    Vector3 color = rayColor(ray, world);
-
-                    byte br = (byte)(255.999f * color.X);
-                    byte bg = (byte)(255.999f * color.Y);
-                    byte bb = (byte)(255.999f * color.Z);
-
-                    imageBuffer[index++] = bb;
-                    imageBuffer[index++] = bg;
-                    imageBuffer[index++] = br;
+                    float u = (i + Utility.RandomF()) / (imageWidth - 1);
+                    float v = (j + Utility.RandomF()) / (imageHeight - 1);
+                    Ray ray = camera.getRay(u, v);
+                    color += rayColor(ray, world);
                 }
+
+                color *= (1.0f / samplesPerPixel);
+                byte br = (byte)(255.999f * color.X);
+                byte bg = (byte)(255.999f * color.Y);
+                byte bb = (byte)(255.999f * color.Z);
+                imageBuffer[3 * index] = bb;
+                imageBuffer[3 * index + 1] = bg;
+                imageBuffer[3 * index + 2] = br;
             }
 
             Bitmap bitmap = new Bitmap(imageWidth, imageHeight, stride, PixelFormat.Format24bppRgb, Marshal.UnsafeAddrOfPinnedArrayElement(imageBuffer, 0));

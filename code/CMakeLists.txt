@@ -1,8 +1,10 @@
 ADD_EXECUTABLE(RayTracingInOneWeekend
+    Utility.cs
     Ray.cs
     Hittable.cs
     Sphere.cs
     HittableList.cs
+    Camera.cs
     Main.cs
 )
 
