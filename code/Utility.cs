@@ -5,6 +5,9 @@ namespace RayTracingInOneWeekend {
 
     public class Utility
     {
+        public static readonly float Pi = (float)Math.PI;
+        public static readonly float TwoPi = 2.0f * Pi;
+
         // Returns a random float in [0 1)
         public static float RandomF()
         {
@@ -23,17 +26,28 @@ namespace RayTracingInOneWeekend {
 
         public static Vector3 RandomUnitVector()
         {
-            float a = RandomF(0, 2.0f * (float)Math.PI);
+            float a = RandomF(0.0f, TwoPi);
             float z = RandomF(-1.0f, 1.0f);
             float r = (float)Math.Sqrt(1.0f - z * z);
             return new Vector3(r * (float)Math.Cos(a), r * (float)Math.Sin(a), z);
         }
 
-        public static Vector3 RandomUnitVector(in Vector3 normal)
+        public static Vector3 RandomUnitVectorInHemisphere(in Vector3 normal)
         {
             Vector3 ret = RandomUnitVector();
             float flip = Math.Sign(Vector3.Dot(normal, ret));
             return flip * ret;
+        }
+
+        public static Vector3 RandomUnitVectorInDisk()
+        {
+            for (;;)
+            {
+
+                Vector3 ret = new Vector3(RandomF(-1.0f, 1.0f), RandomF(-1.0f, 1.0f), 0.0f);
+                if (Vector3.Dot(ret, ret) < 1.0f)
+                    return ret;
+            }
         }
 
         public static float Clamp(float value, float min, float max)

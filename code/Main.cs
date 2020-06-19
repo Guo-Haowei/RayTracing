@@ -55,12 +55,18 @@ namespace RayTracingInOneWeekend
             world.add(new Sphere(new Vector3(-1.0f, 0.0f, -1.0f), 0.5f, new Dielectric(1.5f)));
             world.add(new Sphere(new Vector3(-1.0f, 0.0f, -1.0f), -0.45f, new Dielectric(1.5f)));
 
+            Vector3 lookFrom = new Vector3(3.0f, 3.0f, 2.0f);
+            Vector3 lookAt = new Vector3(0.0f, 0.0f, -1.0f);
+            float focusDistance = Vector3.Distance(lookFrom, lookAt);
+            float aperture = 1.0f;
             Camera camera = new Camera(
-                new Vector3(-2.0f, 2.0f, 1.0f),
-                new Vector3(0.0f, 0.0f, -1.0f),
+                lookFrom,
+                lookAt,
                 Vector3.UnitY,
                 20.0f,
-                aspectRatio);
+                aspectRatio,
+                aperture,
+                focusDistance);
 
             DateTime start = DateTime.Now;
             Console.WriteLine("Start at: {0}", start.ToString("F"));
