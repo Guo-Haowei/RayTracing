@@ -75,12 +75,10 @@ namespace RayTracingInOneWeekend
 
         static void Main()
         {
-            const float aspectRatio = 16.0f / 9.0f;
             const int imageWidth = 384;
-            const int imageHeight = (int)(imageWidth / aspectRatio);
-            // const int imageWidth = 512;
-            // const int imageHeight = 512;
-            // const float aspectRatio = (float)imageWidth / imageHeight;
+            const int imageHeight = imageWidth;
+            // const int imageHeight = 216;
+            const float aspectRatio = (float)imageWidth / imageHeight;
             const int samplesPerPixel = 500;
             const int maxDepth = 50;
 

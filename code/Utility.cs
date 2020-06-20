@@ -69,6 +69,18 @@ namespace RayTracingInOneWeekend {
             return flip ? -ret : ret;
         }
 
+        public static Vector3 RandomCosineDirection()
+        {
+            float r1 = RandomF();
+            float r2 = RandomF();
+            float z = SqrtF(1.0f - r2);
+            float phi = TwoPi * r1;
+            float sqrtR2 = SqrtF(r2);
+            float x = CosF(phi) * sqrtR2;
+            float y = SinF(phi) * sqrtR2;
+            return new Vector3(x, y, z);
+        }
+
         public static Vector3 RandomColor()
         {
             return new Vector3(RandomF(), RandomF(), RandomF());

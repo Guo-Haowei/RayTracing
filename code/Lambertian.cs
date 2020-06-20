@@ -13,12 +13,13 @@ namespace RayTracingInOneWeekend {
 
         public override bool scatter(in Ray ray, in HitRecord record, ref Vector3 albedo, ref Ray scattered, ref float pdf)
         {
-            Vector3 direction = Utility.RandomUnitVectorInHemisphere(record.normal);
+            OrthonormalBasis uvw = OrthonormalBasis.CreateFromW(record.normal);
+            Vector3 direction = uvw.local(Utility.RandomCosineDirection());
             scattered.origin = record.point;
             scattered.direction = direction;
             scattered.time = ray.time;
             albedo = this.albedo.value(record.uv, record.point);
-            pdf = 0.5f / Utility.Pi;
+            pdf = Vector3.Dot(uvw.w, direction) / Utility.Pi;
             return true;
         }
 
