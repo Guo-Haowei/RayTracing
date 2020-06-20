@@ -1,16 +1,42 @@
+using System;
 using System.Numerics;
 
 namespace RayTracingInOneWeekend {
 
-    public class XYRect : Hittable
+    public abstract class AxisAlignedRect : Hittable
     {
-        public XYRect(in Vector3 min, in Vector3 max, float k, in Material material)
+        protected AxisAlignedRect(in Vector3 min, in Vector3 max, float k, in Material material)
         {
             this.min = min;
             this.max = max;
             this.k = k;
             this.material = material;
         }
+
+        public abstract float area();
+        public sealed override float pdfValue(in Vector3 origin, in Vector3 v)
+        {
+            HitRecord record = new HitRecord();
+            if (!hit(new Ray(origin, v), Ray.ZMin, Ray.ZMax, ref record))
+                return 0.0f;
+            
+            float A = area();
+            float vLength = Vector3.Dot(v, v);
+            float distSqr = record.t * record.t * vLength;
+            float cosine = Math.Abs(Vector3.Dot(v, record.normal) / Utility.SqrtF(vLength));
+            return distSqr / (cosine * A);
+        }
+
+        protected readonly Vector3 min;
+        protected readonly Vector3 max;
+        protected readonly float k;
+        protected readonly Material material;
+    }
+
+    public class XYRect : AxisAlignedRect
+    {
+        public XYRect(in Vector3 min, in Vector3 max, float k, in Material material)
+            : base(min, max, k, material) { }
 
         public override bool hit(in Ray ray, float tMin, float tMax, ref HitRecord record)
         {
@@ -31,21 +57,27 @@ namespace RayTracingInOneWeekend {
             return true;
         }
 
-        private readonly Vector3 min;
-        private readonly Vector3 max;
-        private readonly float k;
-        private readonly Material material;
+        public sealed override float area()
+        {
+            return (max.X - min.X) * (max.Y - min.Y);
+        }
+
+        public override Vector3 random(in Vector3 origin)
+        {
+            var randomPoint = new Vector3(
+                Utility.RandomF(min.X, max.X),
+                Utility.RandomF(min.Y, max.Y),
+                k
+            );
+
+            return randomPoint - origin;
+        }
     }
 
-    public class XZRect : Hittable
+    public class XZRect : AxisAlignedRect
     {
         public XZRect(in Vector3 min, in Vector3 max, float k, in Material material)
-        {
-            this.min = min;
-            this.max = max;
-            this.k = k;
-            this.material = material;
-        }
+            : base(min, max, k, material) { }
 
         public override bool hit(in Ray ray, float tMin, float tMax, ref HitRecord record)
         {
@@ -66,21 +98,27 @@ namespace RayTracingInOneWeekend {
             return true;
         }
 
-        private readonly Vector3 min;
-        private readonly Vector3 max;
-        private readonly float k;
-        private readonly Material material;
+        public sealed override float area()
+        {
+            return (max.X - min.X) * (max.Z - min.Z);
+        }
+
+        public override Vector3 random(in Vector3 origin)
+        {
+            var randomPoint = new Vector3(
+                Utility.RandomF(min.X, max.X),
+                k,
+                Utility.RandomF(min.Z, max.Z)
+            );
+
+            return randomPoint - origin;
+        }
     }
 
-    public class YZRect : Hittable
+    public class YZRect : AxisAlignedRect
     {
         public YZRect(in Vector3 min, in Vector3 max, float k, in Material material)
-        {
-            this.min = min;
-            this.max = max;
-            this.k = k;
-            this.material = material;
-        }
+            : base(min, max, k, material) { }
 
         public override bool hit(in Ray ray, float tMin, float tMax, ref HitRecord record)
         {
@@ -100,11 +138,22 @@ namespace RayTracingInOneWeekend {
             
             return true;
         }
+    
+        public sealed override float area()
+        {
+            return (max.Y - min.Y) * (max.Z - min.Z);
+        }
 
-        private readonly Vector3 min;
-        private readonly Vector3 max;
-        private readonly float k;
-        private readonly Material material;
+        public override Vector3 random(in Vector3 origin)
+        {
+            var randomPoint = new Vector3(
+                k,
+                Utility.RandomF(min.Y, max.Y),
+                Utility.RandomF(min.Z, max.Z)
+            );
+
+            return randomPoint - origin;
+        }
     }
 
 }

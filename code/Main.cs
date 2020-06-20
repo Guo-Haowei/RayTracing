@@ -16,61 +16,46 @@ namespace RayTracingInOneWeekend
         static readonly float boxSize = 555.0f;
         static readonly float lightY = boxSize - 1.0f;
 
-        static Vector3 rayColor(in Ray ray, in Vector3 background, in HittableList world, int depth)
+        static Vector3 rayColor(in Ray ray, in Vector3 background, in Hittable light, in HittableList world, int depth)
         {
             if (depth <= 0)
                 return Vector3.Zero;
 
             HitRecord record = new HitRecord();
 
-            if (!(world.hit(ray, 0.001f, float.PositiveInfinity, ref record)))
+            if (!(world.hit(ray, Ray.ZMin, Ray.ZMax, ref record)))
                 return background;
 
             Ray scattered = new Ray();
             // scattered.time = 0.0f;
             Material mat = record.material;
             Vector3 emitted = mat.emit(ray, record);
-            float pdf = 0.0f;
+            float pdfValue = 0.0f;
             // Vector3 attenuation = new Vector3(0.0f);
             Vector3 albedo = new Vector3(0.0f);
 
-            if (!mat.scatter(ray, record, ref albedo, ref scattered, ref pdf))
+            if (!mat.scatter(ray, record, ref albedo, ref scattered, ref pdfValue))
                 return emitted;
+            
+            var pdf0 = new HittablePdf(light, record.point);
+            var pdf1 = new CosinePdf(record.normal);
+            var pdf = new MixturePdf(pdf0, pdf1);
 
-            Vector3 onLight = new Vector3(
-                Utility.RandomF(lightXMin, lightXMax),
-                lightY,
-                Utility.RandomF(lightZMin, lightZMax)
-            );
-
-            Vector3 toLight = onLight - record.point;
-            float distanceSqrToLight = Vector3.Dot(toLight, toLight);
-            toLight = Vector3.Normalize(toLight);
-
-            if (Vector3.Dot(toLight, record.normal) < 0.0f)
-                return emitted;
-
-            float lightArea = (lightXMax - lightXMin) * (lightZMax - lightZMin);
-            float lightCosine = Math.Abs(toLight.Y);
-            if (lightCosine < 0.00001f)
-                return emitted;
-
-            pdf = distanceSqrToLight / (lightCosine * lightArea);
-            scattered.origin = record.point;
-            scattered.direction = toLight;
+            scattered.direction = pdf.generate();
+            pdfValue = pdf.value(scattered.direction);
 
             float scatteredPdf = mat.scatterPdf(ray, record, scattered);
-            return emitted + albedo * scatteredPdf * rayColor(scattered, background, world, depth - 1) / pdf;
+            return emitted + albedo * scatteredPdf * rayColor(scattered, background, light, world, depth - 1) / pdfValue;
         }
 
-        static HittableList createScene(out Camera camera, float aspect)
+        static void createScene(out HittableList world, out Hittable light, out Camera camera, float aspect)
         {
-            HittableList world = new HittableList();
+            world = new HittableList();
 
             var red = new Lambertian(new SolidColor(0.65f, 0.05f, 0.05f));
             var green = new Lambertian(new SolidColor(0.12f, 0.45f, 0.15f));
             var white = new Lambertian(new SolidColor(0.73f));
-            var light = new DiffuseLight(new SolidColor(15.0f));
+            var emissive = new DiffuseLight(new SolidColor(15.0f));
 
             float s = boxSize;
             world.add(new YZRect(Vector3.Zero, s * Vector3.One, s, green));
@@ -82,7 +67,8 @@ namespace RayTracingInOneWeekend
             {
                 Vector3 lmin = new Vector3(lightXMin, 0.0f, lightZMin);
                 Vector3 lmax = new Vector3(lightXMax, 0.0f, lightZMax);
-                world.add(new XZRect(lmin, lmax, lightY, light));
+                light = new XZRect(lmin, lmax, lightY, emissive);
+                world.add(light);
             }
             // add sphere
             {
@@ -90,7 +76,6 @@ namespace RayTracingInOneWeekend
                 Vector3 max = new Vector3(295.0f, 165.0f, 230.0f);
                 Vector3 center = 0.5f * (min + max);
                 float radius = 0.5f * (max - min).X;
-                // world.add(new Box(new Vector3(130.0f, 0.0f, 65.0f), new Vector3(295.0f, 165.0f, 230.0f), white));
                 world.add(new Sphere(center, radius, white));
             }
             // add box
@@ -114,7 +99,6 @@ namespace RayTracingInOneWeekend
                 0.0f,
                 1.0f);
 
-            return world;
         }
 
         static void Main()
@@ -123,8 +107,8 @@ namespace RayTracingInOneWeekend
             const int imageHeight = imageWidth;
             // const int imageHeight = 216;
             const float aspectRatio = (float)imageWidth / imageHeight;
-            const int samplesPerPixel = 10;
-            // const int samplesPerPixel = 100;
+            // const int samplesPerPixel = 30;
+            const int samplesPerPixel = 500;
             const int maxDepth = 50;
 
             const int component = 3;
@@ -133,8 +117,10 @@ namespace RayTracingInOneWeekend
             byte[] imageBuffer = new byte[stride * imageHeight];
 
             Camera camera;
+            Hittable light;
+            HittableList world;
 
-            HittableList world = createScene(out camera, aspectRatio);
+            createScene(out world, out light, out camera, aspectRatio);
 
             DateTime start = DateTime.Now;
             Console.WriteLine("Start at: {0}", start.ToString("F"));
@@ -150,7 +136,10 @@ namespace RayTracingInOneWeekend
                         float u = (i + Utility.RandomF()) / (imageWidth - 1);
                         float v = (j + Utility.RandomF()) / (imageHeight - 1);
                         Ray ray = camera.getRay(u, v);
-                        color += rayColor(ray, Vector3.Zero, world, maxDepth);
+                        Vector3 c = rayColor(ray, Vector3.Zero, light, world, maxDepth);
+                        bool isColorNaN = float.IsNaN(c.X) || float.IsNaN(c.Y) || float.IsNaN(c.Z);
+                        c = isColorNaN ? Vector3.Zero : c;
+                        color += c;
                     }
 
                     // devide the color total by the number of samples and gamma-correct for gamma = 2.0
