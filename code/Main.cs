@@ -20,17 +20,21 @@ namespace RayTracingInOneWeekend
                 return background;
 
             Ray scattered = new Ray();
-            scattered.time = 0.0f;
-            Vector3 attenuation = new Vector3();
+            // scattered.time = 0.0f;
             Material mat = hitRecord.material;
             Vector3 emitted = mat.emit(hitRecord.uv, hitRecord.point);
-            if (!mat.scatter(ray, hitRecord, ref attenuation, ref scattered))
+            float pdf = 0.0f;
+            // Vector3 attenuation = new Vector3(0.0f);
+            Vector3 albedo = new Vector3(0.0f);
+
+            if (!mat.scatter(ray, hitRecord, ref albedo, ref scattered, ref pdf))
                 return emitted;
             
-            return emitted + attenuation * rayColor(scattered, background, world, depth - 1);
+            float scatteredPdf = mat.scatterPdf(ray, hitRecord, scattered);
+            return emitted + albedo * scatteredPdf * rayColor(scattered, background, world, depth - 1) / pdf;
         }
 
-        static HittableList createScene()
+        static HittableList createScene(out Camera camera, float aspect)
         {
             HittableList world = new HittableList();
 
@@ -50,6 +54,22 @@ namespace RayTracingInOneWeekend
             world.add(new Box(new Vector3(130.0f, 0.0f, 65.0f), new Vector3(295.0f, 165.0f, 230.0f), white));
             world.add(new Box(new Vector3(265.0f, 0.0f, 295.0f), new Vector3(430.0f, 330.0f, 460.0f), white));
 
+            Vector3 lookFrom = new Vector3(278.0f, 278.0f, -800.0f);
+            Vector3 lookAt = new Vector3(278.0f, 278.0f, 0.0f);
+            float focusDistance = 10.0f;
+            float aperture = 0.0f;
+            float fov = 40.0f;
+            camera = new Camera(
+                lookFrom,
+                lookAt,
+                Vector3.UnitY,
+                fov,
+                aspect,
+                aperture,
+                focusDistance,
+                0.0f,
+                1.0f);
+
             return world;
         }
 
@@ -58,31 +78,20 @@ namespace RayTracingInOneWeekend
             const float aspectRatio = 16.0f / 9.0f;
             const int imageWidth = 384;
             const int imageHeight = (int)(imageWidth / aspectRatio);
+            // const int imageWidth = 512;
+            // const int imageHeight = 512;
+            // const float aspectRatio = (float)imageWidth / imageHeight;
             const int samplesPerPixel = 500;
-            const int maxDepth = 30;
+            const int maxDepth = 50;
 
             const int component = 3;
             const int stride = component * imageWidth;
 
             byte[] imageBuffer = new byte[stride * imageHeight];
 
-            HittableList world = createScene();
+            Camera camera;
 
-            Vector3 lookFrom = new Vector3(278.0f, 278.0f, -800.0f);
-            Vector3 lookAt = new Vector3(278.0f, 278.0f, 0.0f);
-            float focusDistance = 10.0f;
-            float aperture = 0.0f;
-            float fov = 40.0f;
-            Camera camera = new Camera(
-                lookFrom,
-                lookAt,
-                Vector3.UnitY,
-                fov,
-                aspectRatio,
-                aperture,
-                focusDistance,
-                0.0f,
-                1.0f);
+            HittableList world = createScene(out camera, aspectRatio);
 
             DateTime start = DateTime.Now;
             Console.WriteLine("Start at: {0}", start.ToString("F"));

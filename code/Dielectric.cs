@@ -10,9 +10,9 @@ namespace RayTracingInOneWeekend {
             this.reflectionPower = reflectionPower;
         }
 
-        public override bool scatter(in Ray ray, in HitRecord record, ref Vector3 attenuation, ref Ray scattered)
+        public override bool scatter(in Ray ray, in HitRecord record, ref Vector3 albedo, ref Ray scattered)
         {
-            attenuation = Vector3.One;
+            albedo = Vector3.One;
             float factor = record.frontFace ? 1.0f / reflectionPower : reflectionPower;
             Vector3 unitDirection =  Vector3.Normalize(ray.direction);
 

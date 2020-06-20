@@ -65,8 +65,8 @@ namespace RayTracingInOneWeekend {
         public static Vector3 RandomUnitVectorInHemisphere(in Vector3 normal)
         {
             Vector3 ret = RandomUnitVector();
-            float flip = Math.Sign(Vector3.Dot(normal, ret));
-            return flip * ret;
+            bool flip = Vector3.Dot(normal, ret) < 0.0f;
+            return flip ? -ret : ret;
         }
 
         public static Vector3 RandomColor()

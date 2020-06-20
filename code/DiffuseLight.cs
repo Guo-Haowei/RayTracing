@@ -10,7 +10,7 @@ namespace RayTracingInOneWeekend {
             this.emission = emission;
         }
 
-        public override bool scatter(in Ray ray, in HitRecord record, ref Vector3 attenuation, ref Ray scattered)
+        public override bool scatter(in Ray ray, in HitRecord record, ref Vector3 albedo, ref Ray scattered, ref float pdf)
         {
             return false;
         }

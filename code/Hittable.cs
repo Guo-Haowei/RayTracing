@@ -14,9 +14,8 @@ namespace RayTracingInOneWeekend {
 
         public void setFaceNormal(in Ray ray, in Vector3 outwardNormal)
         {
-            int sign = -Math.Sign(Vector3.Dot(ray.direction, outwardNormal));
-            frontFace = sign > 0; 
-            normal = sign * outwardNormal;
+            frontFace = -Math.Sign(Vector3.Dot(ray.direction, outwardNormal)) > 0;
+            normal = frontFace ? outwardNormal : -outwardNormal;
         }
     }
 
