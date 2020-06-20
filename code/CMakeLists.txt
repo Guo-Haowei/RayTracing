@@ -1,4 +1,5 @@
 ADD_EXECUTABLE(RayTracingInOneWeekend
+    Box.cs
     Camera.cs
     Dielectric.cs
     DiffuseLight.cs

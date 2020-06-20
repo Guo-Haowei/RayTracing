@@ -40,12 +40,15 @@ namespace RayTracingInOneWeekend
             var light = new DiffuseLight(new SolidColor(15.0f));
 
             float s = 555.0f;
-            world.add(new YZRect(Vector2.Zero, s * Vector2.One, s, green));
-            world.add(new YZRect(Vector2.Zero, s * Vector2.One, 0.0f, red));
-            world.add(new XZRect(Vector2.Zero, s * Vector2.One, s, white));
-            world.add(new XZRect(Vector2.Zero, s * Vector2.One, 0.0f, white));
-            world.add(new XYRect(Vector2.Zero, s * Vector2.One, s, white));
-            world.add(new XZRect(new Vector2(213.0f), new Vector2(343.0f), s - 1, light));
+            world.add(new YZRect(Vector3.Zero, s * Vector3.One, s, green));
+            world.add(new YZRect(Vector3.Zero, s * Vector3.One, 0.0f, red));
+            world.add(new XZRect(Vector3.Zero, s * Vector3.One, s, white));
+            world.add(new XZRect(Vector3.Zero, s * Vector3.One, 0.0f, white));
+            world.add(new XYRect(Vector3.Zero, s * Vector3.One, s, white));
+            world.add(new XZRect(new Vector3(213.0f), new Vector3(343.0f), s - 1, light));
+
+            world.add(new Box(new Vector3(130.0f, 0.0f, 65.0f), new Vector3(295.0f, 165.0f, 230.0f), white));
+            world.add(new Box(new Vector3(265.0f, 0.0f, 295.0f), new Vector3(430.0f, 330.0f, 460.0f), white));
 
             return world;
         }
@@ -55,8 +58,8 @@ namespace RayTracingInOneWeekend
             const float aspectRatio = 16.0f / 9.0f;
             const int imageWidth = 384;
             const int imageHeight = (int)(imageWidth / aspectRatio);
-            const int samplesPerPixel = 1000;
-            const int maxDepth = 50;
+            const int samplesPerPixel = 500;
+            const int maxDepth = 30;
 
             const int component = 3;
             const int stride = component * imageWidth;

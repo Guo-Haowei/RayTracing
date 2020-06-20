@@ -4,7 +4,7 @@ namespace RayTracingInOneWeekend {
 
     public class XYRect : Hittable
     {
-        public XYRect(in Vector2 min, in Vector2 max, float k, in Material material)
+        public XYRect(in Vector3 min, in Vector3 max, float k, in Material material)
         {
             this.min = min;
             this.max = max;
@@ -31,15 +31,15 @@ namespace RayTracingInOneWeekend {
             return true;
         }
 
-        private readonly Vector2 min;
-        private readonly Vector2 max;
+        private readonly Vector3 min;
+        private readonly Vector3 max;
         private readonly float k;
         private readonly Material material;
     }
 
     public class XZRect : Hittable
     {
-        public XZRect(in Vector2 min, in Vector2 max, float k, in Material material)
+        public XZRect(in Vector3 min, in Vector3 max, float k, in Material material)
         {
             this.min = min;
             this.max = max;
@@ -54,7 +54,7 @@ namespace RayTracingInOneWeekend {
                 return false;
 
             Vector3 p = ray.at(t);
-            if (p.X < min.X || p.X > max.X || p.Z < min.Y || p.Z > max.Y)
+            if (p.X < min.X || p.X > max.X || p.Z < min.Z || p.Z > max.Z)
                 return false;
             
             // uv
@@ -66,15 +66,15 @@ namespace RayTracingInOneWeekend {
             return true;
         }
 
-        private readonly Vector2 min;
-        private readonly Vector2 max;
+        private readonly Vector3 min;
+        private readonly Vector3 max;
         private readonly float k;
         private readonly Material material;
     }
 
     public class YZRect : Hittable
     {
-        public YZRect(in Vector2 min, in Vector2 max, float k, in Material material)
+        public YZRect(in Vector3 min, in Vector3 max, float k, in Material material)
         {
             this.min = min;
             this.max = max;
@@ -89,7 +89,7 @@ namespace RayTracingInOneWeekend {
                 return false;
 
             Vector3 p = ray.at(t);
-            if (p.Y < min.X || p.Y > max.X || p.Z < min.Y || p.Z > max.Y )
+            if (p.Y < min.Y || p.Y > max.Y || p.Z < min.Z || p.Z > max.Z )
                 return false;
             
             // uv
@@ -101,8 +101,8 @@ namespace RayTracingInOneWeekend {
             return true;
         }
 
-        private readonly Vector2 min;
-        private readonly Vector2 max;
+        private readonly Vector3 min;
+        private readonly Vector3 max;
         private readonly float k;
         private readonly Material material;
     }
