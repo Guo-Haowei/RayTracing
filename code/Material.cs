@@ -2,9 +2,20 @@ using System.Numerics;
 
 namespace RayTracingInOneWeekend {
 
-    public abstract class Material
+    public struct ScatterRecord
     {
-        public abstract bool scatter(in Ray ray, in HitRecord record, ref Vector3 albedo, ref Ray scattered, ref float pdf);
+        public Ray specularRay;
+        public bool isSpecular;
+        public Vector3 attenuation;
+        public Pdf pdf;
+    }
+
+    public class Material
+    {
+        public virtual bool scatter(in Ray ray, in HitRecord hrec, ref ScatterRecord srec)
+        {
+            return false;
+        }
 
         public virtual float scatterPdf(in Ray ray, in HitRecord record, in Ray scattered)
         {

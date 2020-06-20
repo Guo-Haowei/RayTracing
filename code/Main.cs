@@ -21,31 +21,30 @@ namespace RayTracingInOneWeekend
             if (depth <= 0)
                 return Vector3.Zero;
 
-            HitRecord record = new HitRecord();
+            HitRecord hrec = new HitRecord();
 
-            if (!(world.hit(ray, Ray.ZMin, Ray.ZMax, ref record)))
+            if (!(world.hit(ray, Ray.ZMin, Ray.ZMax, ref hrec)))
                 return background;
 
-            Ray scattered = new Ray();
-            // scattered.time = 0.0f;
-            Material mat = record.material;
-            Vector3 emitted = mat.emit(ray, record);
-            float pdfValue = 0.0f;
-            // Vector3 attenuation = new Vector3(0.0f);
-            Vector3 albedo = new Vector3(0.0f);
-
-            if (!mat.scatter(ray, record, ref albedo, ref scattered, ref pdfValue))
+            Material mat = hrec.material;
+            Vector3 emitted = mat.emit(ray, hrec);
+            ScatterRecord srec = new ScatterRecord();
+            if (!mat.scatter(ray, hrec, ref srec))
                 return emitted;
             
-            var pdf0 = new HittablePdf(light, record.point);
-            var pdf1 = new CosinePdf(record.normal);
-            var pdf = new MixturePdf(pdf0, pdf1);
+            // Ray scattered = new Ray()
+            var lightPdf = new HittablePdf(light, hrec.point);
+            var pdf = new MixturePdf(lightPdf, srec.pdf);
 
-            scattered.direction = pdf.generate();
-            pdfValue = pdf.value(scattered.direction);
+            Ray scattered = new Ray(hrec.point, pdf.generate());
 
-            float scatteredPdf = mat.scatterPdf(ray, record, scattered);
-            return emitted + albedo * scatteredPdf * rayColor(scattered, background, light, world, depth - 1) / pdfValue;
+            float pdfValue = pdf.value(scattered.direction);
+            float scatteredPdf = mat.scatterPdf(ray, hrec, scattered);
+
+            return emitted +
+                   srec.attenuation *
+                   scatteredPdf *
+                   rayColor(scattered, background, light, world, depth - 1) / pdfValue;
         }
 
         static void createScene(out HittableList world, out Hittable light, out Camera camera, float aspect)
@@ -107,8 +106,8 @@ namespace RayTracingInOneWeekend
             const int imageHeight = imageWidth;
             // const int imageHeight = 216;
             const float aspectRatio = (float)imageWidth / imageHeight;
-            // const int samplesPerPixel = 30;
-            const int samplesPerPixel = 500;
+            const int samplesPerPixel = 30;
+            // const int samplesPerPixel = 500;
             const int maxDepth = 50;
 
             const int component = 3;
