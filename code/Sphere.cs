@@ -42,6 +42,26 @@ namespace RayTracingInOneWeekend {
             float v = (theta + Utility.HalfPi) / Utility.Pi;
             return new Vector2(u, v);
         }
+        public override float pdfValue(in Vector3 origin, in Vector3 v)
+        {
+            HitRecord hrec = new HitRecord();
+            if (!hit(new Ray(origin, v), Ray.ZMin, Ray.ZMax, ref hrec))
+                return 0.0f;
+            
+            Vector3 d = center - origin;
+            float distSqr = Vector3.Dot(d, d);
+            float cosTheta = Utility.SqrtF(1.0f - radius * radius / distSqr);
+            float solidAngle = Utility.TwoPi * (1.0f - cosTheta);
+            return 1.0f / solidAngle;
+        }
+
+        public override Vector3 random(in Vector3 origin)
+        {
+            Vector3 d = center - origin;
+            float distSqr = Vector3.Dot(d, d);
+            var uvw = OrthonormalBasis.CreateFromW(d);
+            return uvw.local(Utility.RandomToSphere(radius, distSqr));
+        }
 
         public Sphere(in Vector3 center, float radius, Material material)
         {

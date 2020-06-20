@@ -97,6 +97,18 @@ namespace RayTracingInOneWeekend {
             return new Vector2(radius * SinF(angle), radius * CosF(angle));
         }
 
+        public static Vector3 RandomToSphere(float r /* radius */, float distSqr)
+        {
+            float r0 = RandomF();
+            float r1 = RandomF();
+            float z = 1.0f + r1 * (SqrtF(1.0f - r * r / distSqr) - 1.0f);
+            float phi = TwoPi * r0;
+            float sine = SqrtF(1.0f - z * z);
+            float x = CosF(phi) * sine;
+            float y = SinF(phi) * sine;
+            return new Vector3(x, y, z);
+        }
+
         public static float Clamp(float value, float min, float max)
         {
             return Math.Min(Math.Max(min, value), max);

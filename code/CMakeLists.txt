@@ -8,7 +8,7 @@ ADD_EXECUTABLE(RayTracingInOneWeekend
     Lambertian.cs
     Main.cs
     Material.cs
-    # Metal.cs
+    Metal.cs
     OrthonormalBasis.cs
     Pdf.cs
     Ray.cs

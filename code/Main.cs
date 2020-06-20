@@ -18,7 +18,7 @@ namespace RayTracingInOneWeekend
 
         static Vector3 rayColor(in Ray ray, in Vector3 background, in Hittable light, in HittableList world, int depth)
         {
-            if (depth <= 0)
+            if (depth-- <= 0)
                 return Vector3.Zero;
 
             HitRecord hrec = new HitRecord();
@@ -31,8 +31,12 @@ namespace RayTracingInOneWeekend
             ScatterRecord srec = new ScatterRecord();
             if (!mat.scatter(ray, hrec, ref srec))
                 return emitted;
-            
-            // Ray scattered = new Ray()
+
+            if (srec.isSpecular)
+            {
+                return srec.attenuation * rayColor(srec.specularRay, background, light, world, depth);
+            }
+
             var lightPdf = new HittablePdf(light, hrec.point);
             var pdf = new MixturePdf(lightPdf, srec.pdf);
 
@@ -44,7 +48,7 @@ namespace RayTracingInOneWeekend
             return emitted +
                    srec.attenuation *
                    scatteredPdf *
-                   rayColor(scattered, background, light, world, depth - 1) / pdfValue;
+                   rayColor(scattered, background, light, world, depth) / pdfValue;
         }
 
         static void createScene(out HittableList world, out Hittable light, out Camera camera, float aspect)
@@ -54,7 +58,8 @@ namespace RayTracingInOneWeekend
             var red = new Lambertian(new SolidColor(0.65f, 0.05f, 0.05f));
             var green = new Lambertian(new SolidColor(0.12f, 0.45f, 0.15f));
             var white = new Lambertian(new SolidColor(0.73f));
-            var emissive = new DiffuseLight(new SolidColor(15.0f));
+            var emissive = new DiffuseLight(new SolidColor(10.0f));
+            var aluminum = new Metal(new Vector3(0.8f, 0.85f, 0.88f), 0.0f);
 
             float s = boxSize;
             world.add(new YZRect(Vector3.Zero, s * Vector3.One, s, green));
@@ -66,20 +71,24 @@ namespace RayTracingInOneWeekend
             {
                 Vector3 lmin = new Vector3(lightXMin, 0.0f, lightZMin);
                 Vector3 lmax = new Vector3(lightXMax, 0.0f, lightZMax);
-                light = new XZRect(lmin, lmax, lightY, emissive);
-                world.add(light);
+                var rectLight = new XZRect(lmin, lmax, lightY, emissive);
+                world.add(rectLight);
+                light = rectLight;
             }
             // add sphere
             {
-                Vector3 min = new Vector3(130.0f, 0.0f, 65.0f);
-                Vector3 max = new Vector3(295.0f, 165.0f, 230.0f);
-                Vector3 center = 0.5f * (min + max);
-                float radius = 0.5f * (max - min).X;
-                world.add(new Sphere(center, radius, white));
+                var min = new Vector3(130.0f, 0.0f, 65.0f);
+                var max = new Vector3(295.0f, 165.0f, 230.0f);
+                var center = 0.5f * (min + max);
+                var radius = 0.5f * (max - min).X;
+                var sphere = new Sphere(center, radius, white);
+                world.add(sphere);
             }
             // add box
             {
-                world.add(new Box(new Vector3(265.0f, 0.0f, 295.0f), new Vector3(430.0f, 330.0f, 460.0f), white));
+                var min = new Vector3(265.0f, 0.0f, 295.0f);
+                var max = new Vector3(430.0f, 330.0f, 460.0f);
+                world.add(new Box(min, max, aluminum));
             }
 
             Vector3 lookFrom = new Vector3(278.0f, 278.0f, -800.0f);
@@ -100,18 +109,38 @@ namespace RayTracingInOneWeekend
 
         }
 
-        static void Main()
+        static void Main(string[] args)
         {
-            const int imageWidth = 384;
-            const int imageHeight = imageWidth;
-            // const int imageHeight = 216;
-            const float aspectRatio = (float)imageWidth / imageHeight;
-            const int samplesPerPixel = 30;
-            // const int samplesPerPixel = 500;
-            const int maxDepth = 50;
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Usage: $./RayTracingInOneWeekend samples [width] [height]");
+                return;
+            }
 
-            const int component = 3;
-            const int stride = component * imageWidth;
+            DateTime start = DateTime.Now;
+            Console.WriteLine("Start at: {0}", start.ToString("F"));
+
+            int samplesPerPixel = 10;
+            int imageWidth = 512;
+            int imageHeight = imageWidth;
+
+            if (args.Length > 0)
+                samplesPerPixel = int.Parse(args[0]);
+
+            if (args.Length > 1)
+                imageWidth = imageHeight = int.Parse(args[1]);
+
+            if (args.Length > 2)
+                imageHeight = int.Parse(args[2]);
+            
+            Console.WriteLine("Samples per pixel: {0}", samplesPerPixel);
+            Console.WriteLine("Image extent: {0} x {1}", imageWidth, imageHeight);
+
+            int maxDepth = 50;
+            int component = 3;
+            int stride = component * imageWidth;
+
+            float aspectRatio = (float)imageWidth / imageHeight;
 
             byte[] imageBuffer = new byte[stride * imageHeight];
 
@@ -121,8 +150,6 @@ namespace RayTracingInOneWeekend
 
             createScene(out world, out light, out camera, aspectRatio);
 
-            DateTime start = DateTime.Now;
-            Console.WriteLine("Start at: {0}", start.ToString("F"));
 
             Parallel.For(0, imageWidth * imageHeight,
                 index => {

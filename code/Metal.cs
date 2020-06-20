@@ -11,14 +11,13 @@ namespace RayTracingInOneWeekend {
             this.fuzziness = fuzziness;
         }
 
-        public override bool scatter(in Ray ray, in HitRecord record, ref Vector3 albedo, ref Ray scattered, ref float pdf)
+        public override bool scatter(in Ray ray, in HitRecord hrec, ref ScatterRecord srec)
         {
-            Vector3 reflected = Vector3.Reflect(Vector3.Normalize(ray.direction), record.normal);
-            scattered.origin = record.point;
-            scattered.direction = reflected + fuzziness * Utility.RandomUnitVector();
-            scattered.time = ray.time;
-            albedo = this.albedo;
-            return Vector3.Dot(scattered.direction, record.normal) > 0.0f;
+            Vector3 reflected = Vector3.Reflect(Vector3.Normalize(ray.direction), hrec.normal);
+            srec.isSpecular = true;
+            srec.specularRay = new Ray(hrec.point, reflected + fuzziness * Utility.RandomUnitVector());
+            srec.attenuation = albedo;
+            return true;
         }
 
         private readonly Vector3 albedo;
