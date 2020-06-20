@@ -29,11 +29,6 @@ namespace RayTracingInOneWeekend {
             return Math.Max(cosine / Utility.Pi, 0.0f);
         }
 
-        public override Vector3 emit(in Vector2 uv, in Vector3 point)
-        {
-            return Vector3.Zero;
-        }
-
         private readonly Texture albedo;
     }
 

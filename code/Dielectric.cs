@@ -30,11 +30,6 @@ namespace RayTracingInOneWeekend {
             return true;
         }
 
-        public override Vector3 emit(in Vector2 uv, in Vector3 point)
-        {
-            return Vector3.Zero;
-        }
-
         private readonly float reflectionPower;
     }
 

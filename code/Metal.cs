@@ -21,11 +21,6 @@ namespace RayTracingInOneWeekend {
             return Vector3.Dot(scattered.direction, record.normal) > 0.0f;
         }
 
-        public override Vector3 emit(in Vector2 uv, in Vector3 point)
-        {
-            return Vector3.Zero;
-        }
-
         private readonly Vector3 albedo;
         private readonly float fuzziness;
     }

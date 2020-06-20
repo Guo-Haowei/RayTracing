@@ -15,9 +15,10 @@ namespace RayTracingInOneWeekend {
             return false;
         }
 
-        public override Vector3 emit(in Vector2 uv, in Vector3 point)
+        public override Vector3 emit(in Ray ray, in HitRecord record)
         {
-            return emission.value(uv, point);
+            // return record.frontFace ? emission.value(record.uv, record.point) : Vector3.Zero;
+            return !record.frontFace ? emission.value(record.uv, record.point) : Vector3.Zero;
         }
 
         private readonly Texture emission;
