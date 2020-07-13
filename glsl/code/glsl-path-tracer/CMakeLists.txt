@@ -3,7 +3,7 @@ add_executable(glsl-path-tracer
 )
 
 target_include_directories(glsl-path-tracer PRIVATE
-    ${PROJECT_SOURCE_DIR}/source/common/
+    ${PROJECT_SOURCE_DIR}/code/common/
 )
 
 target_link_libraries(glsl-path-tracer PRIVATE

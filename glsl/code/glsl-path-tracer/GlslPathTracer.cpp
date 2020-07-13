@@ -4,6 +4,10 @@
 #include <iostream>
 using std::vector;
 
+#ifndef DATA_DIR
+#define DATA_DIR ""
+#endif
+
 namespace pt {
 
 // TODO: refactor
@@ -52,7 +56,7 @@ static vector<Triangle> g_trianges;
  *   B|/_________________|C
  *
  */
-static void addTriangle(const vec3& center, const vec3& size, int material, float rotateY)
+static void addCube(const vec3& center, const vec3& size, int material, float rotateY)
 {
     enum { A = 0, B, C, D, E, F, G, H };
     vector<vec3> points =
@@ -193,7 +197,7 @@ void GlslPathTracer::initialize()
     glGenBuffers(1, &m_triangleBuffer);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_triangleBuffer);
 
-    float lightSize = 0.3f;
+    float lightSize = 0.4f;
     g_trianges =
     {
         // light
@@ -216,7 +220,9 @@ void GlslPathTracer::initialize()
         Triangle(vec3(+1.0, +1.0, -1.0), vec3(-1.0, +1.0, -1.0), vec3(+1.0, -1.0, -1.0), 3)
     };
 
-    addTriangle(vec3(-0.4f, -0.6f, -0.4f), vec3(0.3f, 0.8f, 0.3f), 4, glm::radians(30.0f));
+    addCube(vec3(-0.4f, -0.55f, -0.5f), vec3(0.3f, 0.9f, 0.3f), 4, glm::radians(30.0f));
+
+    addCube(vec3(+0.4f, -0.7f, +0.1f), vec3(0.3f), 3, glm::radians(60.0f));
 
     glNamedBufferData(m_triangleBuffer, sizeof(Triangle) * g_trianges.size(), g_trianges.data(), GL_DYNAMIC_DRAW);
 }

@@ -8,7 +8,7 @@ target_link_libraries(opengl PUBLIC
 )
 
 target_include_directories(opengl PUBLIC
-    ${PROJECT_SOURCE_DIR}/source/common/
+    ${PROJECT_SOURCE_DIR}/code/common/
     ${PROJECT_SOURCE_DIR}/external/glad/include
 )
 

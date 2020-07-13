@@ -5,7 +5,7 @@ add_library(app
 )
 
 target_include_directories(app PRIVATE
-    ${PROJECT_SOURCE_DIR}/source/common/
+    ${PROJECT_SOURCE_DIR}/code/common/
     ${PROJCET_SOURCE_DIR}/external/glfw/include
 )
 
