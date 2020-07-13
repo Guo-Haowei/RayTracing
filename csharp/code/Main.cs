@@ -132,7 +132,7 @@ namespace RayTracingInOneWeekend
 
             if (args.Length > 2)
                 imageHeight = int.Parse(args[2]);
-            
+
             Console.WriteLine("Samples per pixel: {0}", samplesPerPixel);
             Console.WriteLine("Image extent: {0} x {1}", imageWidth, imageHeight);
 
