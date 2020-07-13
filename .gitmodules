@@ -1,0 +1,9 @@
+[submodule "glsl/external/glfw"]
+	path = glsl/external/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "glsl/external/glad"]
+	path = glsl/external/glad
+	url = https://github.com/Guo-Haowei/glad.git
+[submodule "glsl/external/glm"]
+	path = glsl/external/glm
+	url = https://github.com/g-truc/glm.git
