@@ -7,3 +7,6 @@
 [submodule "glsl/external/glm"]
 	path = glsl/external/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "cuda/external/stb"]
+	path = cuda/external/stb
+	url = https://github.com/nothings/stb.git
